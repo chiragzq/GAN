@@ -2,8 +2,115 @@
 <html>
   <head>
     <title>GAN</title>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
   </head>
   <body>
-    <p>Hello, World!</p>
+    <canvas id="canvas" width="560" height="560" style="border: 1px solid black; display: inline-block; vertical-align:top"></canvas>
+    <div style="display: inline-block; vertical-align: top">
+        <button id="eraseOrDraw">Drawing</button><br />
+        <button id="clear">Clear</button>
+    </div><br />
+    <script>
+      let DRAW = 0;
+      let ERASE = 1;
+      let canvas = $("#canvas")[0]
+      let ctx = canvas.getContext("2d");
+      let mouseDown = false;
+      let grid = [];
+      let mode = DRAW;
+      let dx = [0, 1, 0, -1]
+      let dy = [1, 0, -1, 0]
+      let lastX = -1;
+      let lastY = -1;
+
+      for(let i = 0;i < 28;i ++) {
+          grid.push([]);
+          for(let j = 0;j < 28;j ++) {
+              grid[i].push(0);
+          }
+      }
+      
+      function clear() {
+          grid = [];
+          for(let i = 0;i < 28;i ++) {
+              grid.push([]);
+              for(let j = 0;j < 28;j ++) {
+                  grid[i].push(0);
+              }
+          }
+      }
+      function draw() {
+          ctx.fillStyle = "white";
+          ctx.fillRect(0, 0, 560, 560);
+          for(let i = 0;i < 28;i ++) {
+              for(let j = 0;j < 28;j ++) {
+                  if(grid[i][j]) {
+                      ctx.fillStyle = `rgb(${255 - grid[i][j] * 255}, ${255 - grid[i][j] * 255}, ${255 - grid[i][j] * 255})`
+                      ctx.fillRect(20 * i, 20 * j, 20, 20);
+                  }
+              }
+          }
+          ctx.fillStyle = "black";
+          for(let i = 1;i < 28;i ++) {
+              ctx.fillRect(20 * i, 0, 1, 560);
+              ctx.fillRect(0, 20 * i, 560, 1);
+          }
+      }
+      
+      function valid(x, y) {
+          return x >= 0 && x < 28 && y >= 0 && y < 28;
+      }
+      
+      function drawSquare(e) {
+          let rect = canvas.getBoundingClientRect();
+          let x = Math.trunc((e.clientX - rect.left) / 20);
+          let y = Math.trunc((e.clientY - rect.top) / 20);
+          if(valid(x, y) && (lastX != x || lastY != y)) {
+              lastX = x;
+              lastY = y;
+              if(mode == DRAW) {
+                  grid[x][y] = Math.min(1, grid[x][y] + 0.8);
+                  for(let i = 0;i < 4;i ++) {
+                      if(valid(x + dx[i], y + dy[i])) {
+                          grid[x + dx[i]][y + dy[i]] = Math.min(1, grid[x + dx[i]][y + dy[i]] + 0.45)
+                      }
+                  }
+              } else {
+                  grid[x][y] = 0;
+              }
+        }
+      }
+
+      document.body.onmousedown = (e) => {
+          mouseDown = true;
+          drawSquare(e)
+      }
+
+      document.body.onmouseup = (e) => { 
+          mouseDown = false; 
+          lastX = lastY = -1
+      }
+      document.body.onmousemove = (e) => {
+          if(mouseDown) {
+              drawSquare(e)
+          }
+      }
+      
+      $("#eraseOrDraw").click((e) => {
+          if(mode == DRAW) {
+              $("#eraseOrDraw").text("Erasing");
+              mode = ERASE;
+          } else {
+              $("#eraseOrDraw").text("Drawing");
+              mode = DRAW;
+          }
+      });
+
+      $("#clear").click((e) => {
+          clear();
+      });
+
+      setInterval(draw, 10);
+    </script>
   </body>
 </html>

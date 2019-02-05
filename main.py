@@ -30,6 +30,7 @@ print("Loading images")
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
 print("Done")
 
+input()
 
 #batch_size = 256
 #train_images = np.array([x_train[np.random.randint(0, x_train.shape[0], size=batch_size), :, :]])
