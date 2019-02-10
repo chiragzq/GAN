@@ -12,8 +12,6 @@ graph = tf.get_default_graph()
 class GAN:
     def __init__(self):
         self.model_generator = ModelGenerator()
-        self.discriminator_optimizer = None
-        self.adversial_optimizer = None
         self.discriminator = None
         self.adversial = None
         self.generator = None
@@ -23,17 +21,18 @@ class GAN:
         self.y_test = None
 
     def initialize_models(self):
-        self.discriminator_optimizer = RMSprop(lr = 0.0008, clipvalue = 1.0, decay=6e-8)
+        discriminator_optimizer = RMSprop(lr = 0.0008, clipvalue = 1.0, decay=6e-8)
         self.discriminator = keras.models.Sequential([self.model_generator.discriminator()])
-        self.discriminator.compile(loss="binary_crossentropy", optimizer=self.discriminator_optimizer, metrics=["accuracy"])
+        self.discriminator.compile(loss="binary_crossentropy", optimizer=discriminator_optimizer, metrics=["accuracy"])
         print("Compiled discriminator")
 
-        self.adversial_optimizer = RMSprop(lr = 0.0004, clipvalue=1.0, decay=3e-8)
+        self.model_generator.discriminator().traininable = False
+        adversial_optimizer = RMSprop(lr = 0.0004, clipvalue=1.0, decay=3e-8)
         self.adversial = keras.models.Sequential([
             self.model_generator.generator(),
             self.model_generator.discriminator()
         ])
-        self.adversial.compile(loss="binary_crossentropy", optimizer=self.discriminator_optimizer, metrics=["accuracy"])
+        self.adversial.compile(loss="binary_crossentropy", optimizer=adversial_optimizer, metrics=["accuracy"])
         print("Compiled adversial")
     
     def load_images(self):
@@ -55,7 +54,8 @@ class GAN:
                 labels = np.ones([batch_size, 1])
                 noise = np.random.uniform(-1.0, 1.0, size=[batch_size, 100])
                 adversial_loss = self.adversial.train_on_batch(noise, labels)
-                print("\rTraining progress: %d/%d | Discriminator loss: %f, accuracy: %f | Adversial loss: %f, accuracy: %f" % 
+                #adversial_loss = (0, 0)
+                print("\rTraining progress: %d/%d | Discriminator loss: %f, accuracy: %f | Adversial loss: %f, accuracy: %f" %
                     (i + 1, iterations, discriminator_loss[0], discriminator_loss[1], adversial_loss[0], adversial_loss[1]), end="")
         print("\nDone!")
 

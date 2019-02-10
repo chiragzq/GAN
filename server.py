@@ -22,7 +22,7 @@ def predict_image():
 
 @app.route("/model/train", methods=["GET"])
 def train():
-    gan.train(iterations=1, batch_size=1024)
+    gan.train()
     return ""
 
 def set_GAN(GAN):
