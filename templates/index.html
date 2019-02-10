@@ -10,6 +10,12 @@
         <button id="eraseOrDraw">Drawing</button><br />
         <button id="clear">Clear</button>
     </div><br />
+    <div>
+        <button id="train">Train</button>
+        <button id="generate">Generate an image</button>
+        <button id="check">Check</button><br />
+        <p id="result"></p>
+    </div>
     <script>
       let DRAW = 0;
       let ERASE = 1;
@@ -110,7 +116,50 @@
           clear();
       });
 
-      setInterval(draw, 10);
+      setInterval(draw, 50);
+    </script>
+    <script>
+        const correctGrid = (grid) => {
+            let ret = [];
+            for(let i = 0;i < 28;i ++) {
+                ret[i] = [];
+            }
+            for(let i = 0;i < 28;i ++) {
+                for(let j = 0;j < 28;j ++) {
+                    ret[j][i] = grid[i][j];
+                }
+            }
+            return ret;
+        }
+        $("#train").click((e) => {
+            $.ajax({
+                method: "GET",
+                url: "model/train",
+                success: (data) => {
+                    $("#result").text("Done");
+                }
+            })
+        });
+        $("#generate").click((e) => {
+            $.ajax({
+                method: "GET",
+                url: "model/generate",
+                success: (data) => {
+                    console.log(JSON.parse(data));
+                    grid = JSON.parse(data)[0];
+                }
+            })
+        });
+        $("#check").click((e) => {
+            $.ajax({
+                method: "POST",
+                body: JSON.stringify(correctGrid(grid)),
+                url: "model/predict",
+                success: (data) => {
+                    console.log(data);
+                }
+            });
+        })
     </script>
   </body>
 </html>
