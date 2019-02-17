@@ -145,18 +145,24 @@
                 method: "GET",
                 url: "model/generate",
                 success: (data) => {
-                    console.log(JSON.parse(data));
-                    grid = JSON.parse(data)[0];
+                    grid = JSON.parse(data);
+                    for(let i = 0;i < 28;i ++) {
+                        for(let j = 0;j < 28;j ++) {
+                            grid[i][j] /= 1000;
+                        }
+                    }
                 }
             })
         });
         $("#check").click((e) => {
             $.ajax({
                 method: "POST",
-                body: JSON.stringify(correctGrid(grid)),
+                dataType: "json",
+                contentType: "application/json",
+                data: JSON.stringify({grid: correctGrid(grid)}),
                 url: "model/predict",
                 success: (data) => {
-                    console.log(data);
+                    $("#result").text(`There is a ${Math.round(data[0] * 100)}% chance that this is a number.`);
                 }
             });
         })

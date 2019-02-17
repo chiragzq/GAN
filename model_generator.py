@@ -1,5 +1,5 @@
-from tensorflow.keras.layers import Conv2D, Dropout, LeakyReLU, Flatten, Dense, Activation, BatchNormalization, Reshape, UpSampling2D, Conv2DTranspose
-import tensorflow.keras as keras
+from keras.layers import Conv2D, Dropout, LeakyReLU, Flatten, Dense, Activation, BatchNormalization, Reshape, UpSampling2D, Conv2DTranspose
+import keras
 import tensorflow as tf
 
 class ModelGenerator:

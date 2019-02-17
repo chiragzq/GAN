@@ -5,6 +5,9 @@ from flask import Flask, render_template, request
 
 app = Flask(__name__)
 gan = None
+import logging
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 @app.route("/", methods=["GET"])
 def index():
@@ -12,17 +15,17 @@ def index():
     
 @app.route("/model/generate", methods=["GET"])
 def generate_image():
-    return str(gan.generate_image().tolist())
+    image = np.around(gan.generate_image() * 1000)
+    return str(image.tolist()[0])
 
 @app.route("/model/predict", methods=["POST"])
 def predict_image():
-    print(request.data)
-    image = np.array(json.loads(request.data))
-    return str(gan.predict_image(image))
+    image = np.array(request.get_json()["grid"])
+    return str(json.loads("[%f]" % gan.predict_image(image)[0].item()))
 
 @app.route("/model/train", methods=["GET"])
 def train():
-    gan.train()
+    gan.train(20, 64)
     return ""
 
 def set_GAN(GAN):

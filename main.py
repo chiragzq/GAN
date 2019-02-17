@@ -13,7 +13,6 @@ server.set_GAN(gan)
 print("Initializing GAN")
 gan.initialize_models()
 gan.load_images()
-
 #gan.train(iterations=1)
 
 input() #do not terminate
