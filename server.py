@@ -27,6 +27,10 @@ def predict_image():
 def train():
     gan.train(20, 64)
     return ""
+    
+@app.route("/getFirstImage")
+def get_first_image():
+    return str(gan.x_train[0].tolist())
 
 def set_GAN(GAN):
     global gan

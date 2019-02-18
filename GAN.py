@@ -22,15 +22,15 @@ class GAN:
         self.y_test = None
 
     def initialize_models(self):
-        discriminator_optimizer = RMSprop(lr = 0.0008, clipvalue = 1.0, decay=6e-8)
+        discriminator_optimizer = RMSprop(lr=0.0002, decay=6e-8)
         self.discriminator = keras.models.Sequential([self.model_generator.discriminator()])
         self.discriminator.compile(loss="binary_crossentropy", optimizer=discriminator_optimizer, metrics=["accuracy"])
         print("Compiled discriminator")
 
-        self.discriminator.trainable = False
-        for layer in self.discriminator.layers:
+        self.model_generator.discriminator().trainable = False
+        for layer in self.model_generator.discriminator().layers:
             layer.trainable = False
-        adversial_optimizer = RMSprop(lr = 0.0004, clipvalue=1.0, decay=3e-8)
+        adversial_optimizer = RMSprop(lr=0.0001, decay=3e-8)
         self.adversial = keras.models.Sequential([
             self.model_generator.generator(),
             self.model_generator.discriminator()
@@ -41,6 +41,19 @@ class GAN:
     def load_images(self):
         print("Loading images")
         (self.x_train, self.y_train), (self.x_test, self.y_test) = mnist.load_data()
+        new_x_train = []
+        for image, label in zip(self.x_train, self.y_train):
+            if label == 2:
+                new_x_train.append(image)
+        self.y_train = np.ones([len(new_x_train)])
+        self.x_train = np.array(new_x_train)
+        
+        new_x_train = []
+        for i in range(0, 512):
+            new_x_train.append(self.x_train[0])
+        self.y_train = np.ones([len(new_x_train)])
+        self.x_train = np.array(new_x_train)
+        
         print("Done!")
     
     def train(self, iterations=10, batch_size=256):
@@ -61,7 +74,7 @@ class GAN:
                 #print("\rTraining progress: %d/%d | Discriminator loss: %f, accuracy: %f | Adversial loss: %f, accuracy: %f" %
                 #    (i + 1, iterations, discriminator_loss[0], discriminator_loss[1], adversial_loss[0], adversial_loss[1]), end="")
                 
-                rand_indexes = np.random.randint(0, 10000, size=batch_size)
+                rand_indexes = np.random.randint(0, self.x_train.shape[0], size=batch_size)
                 real_images = self.x_train[rand_indexes, :, :, None]
                 noise = np.random.uniform(-1.0, 1.0, size=[batch_size, 100])
                 fake_images = self.model_generator.generator().predict(noise)
@@ -77,7 +90,7 @@ class GAN:
                 print(log)
         print("\nDone!")
 
-    def do_test(self):
+    def do_discriminator_test(self):
         batch_size = 64
         rand_indexes = np.random.randint(0, 10000, size=batch_size)
         real_images = self.x_train[rand_indexes, :, :, None]
@@ -97,6 +110,27 @@ class GAN:
         y = np.ones([2 * batch_size, 1])
         y[batch_size:, :] = 0.0
         loss, acc = self.discriminator.test_on_batch(x, y)
+        print("%f %f" % (loss, acc))
+        
+    def do_adversarial_test(self):
+        batch_size = 64
+        rand_indexes = np.random.randint(0, 10000, size=batch_size)
+        real_images = self.x_train[rand_indexes, :, :, None]
+        noise = np.random.uniform(-1.0, 1.0, size=[batch_size, 100])
+        fake_images = self.model_generator.generator().predict(noise)
+        
+        y = np.ones([batch_size, 1])
+        loss, acc = self.adversial.test_on_batch(noise, y)
+        print("%f %f" % (loss, acc))
+        
+        x = np.concatenate((real_images, fake_images))
+        y = np.ones([2 * batch_size, 1])
+        y[batch_size:, :] = 0.0
+        loss, acc = self.discriminator.train_on_batch(x, y)
+        
+        y = np.ones([batch_size, 1])
+        loss, acc = self.adversial.test_on_batch(noise, y)
+        
         print("%f %f" % (loss, acc))
         
                 
