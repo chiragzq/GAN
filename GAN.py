@@ -105,11 +105,11 @@ class GAN:
             self.saved_images += 1
             image = np.array(self.model_generator.generator().predict(self.noise))
             image = (255 - image[:, :, :, 0] * 255    ).astype(np.int16)
-            png.from_array(stretch(image.tolist()[0]), "L").save("static/images/%05d.png" % self.training_iterations)
+            png.from_array(self.stretch(image.tolist()[0]), "L").save("static/images/%05d.png" % self.training_iterations)
         
         print("\nDone!")
     
-    def stretch(img):
+    def stretch(self, img):
         res = []
         for i in range(0, len(img) * 4):
             res.append([])
