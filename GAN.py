@@ -3,6 +3,8 @@ import tensorflow as tf
 import keras
 from keras.datasets import mnist
 from keras.optimizers import RMSprop
+from keras.layers import Input
+from keras.models import Model
 
 import numpy as np
 
@@ -22,7 +24,7 @@ class GAN:
         self.y_test = None
 
     def initialize_models(self):
-        discriminator_optimizer = RMSprop(lr=0.0002, decay=6e-8)
+        discriminator_optimizer = RMSprop(lr=2e-4, decay=6e-8)
         self.discriminator = keras.models.Sequential([self.model_generator.discriminator()])
         self.discriminator.compile(loss="binary_crossentropy", optimizer=discriminator_optimizer, metrics=["accuracy"])
         print("Compiled discriminator")
@@ -30,17 +32,22 @@ class GAN:
         self.model_generator.discriminator().trainable = False
         for layer in self.model_generator.discriminator().layers:
             layer.trainable = False
-        adversial_optimizer = RMSprop(lr=0.0001, decay=3e-8)
-        self.adversial = keras.models.Sequential([
-            self.model_generator.generator(),
-            self.model_generator.discriminator()
-        ])
+        adversial_optimizer = RMSprop(lr=1e-4, decay=3e-8)
+
+        input = Input(shape=(100,))
+        self.adversial = Model(
+            input,
+            self.model_generator.discriminator()(self.model_generator.generator()(input))
+        )
         self.adversial.compile(loss="binary_crossentropy", optimizer=adversial_optimizer, metrics=["accuracy"])
+        self.adversial.summary()
         print("Compiled adversial")
     
     def load_images(self):
         print("Loading images")
         (self.x_train, self.y_train), (self.x_test, self.y_test) = mnist.load_data()
+        self.x_train = self.x_train.astype('float32') / 255
+        self.x_test = self.x_test.astype('float32') / 255
         new_x_train = []
         for image, label in zip(self.x_train, self.y_train):
             if label == 2:
@@ -49,7 +56,7 @@ class GAN:
         self.x_train = np.array(new_x_train)
         
         new_x_train = []
-        for i in range(0, 512):
+        for _ in range(0, 512):
             new_x_train.append(self.x_train[0])
         self.y_train = np.ones([len(new_x_train)])
         self.x_train = np.array(new_x_train)

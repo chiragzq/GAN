@@ -4,6 +4,7 @@ import _thread as thread
 from flask import Flask, render_template, request
 
 app = Flask(__name__)
+app.config['TEMPLATES_AUTO_RELOAD'] = True 
 gan = None
 import logging
 log = logging.getLogger('werkzeug')
@@ -16,6 +17,8 @@ def index():
 @app.route("/model/generate", methods=["GET"])
 def generate_image():
     image = np.around(gan.generate_image() * 1000)
+    #image = np.around(gan.x_train[0] * 1000)
+    #return "[" + ",".join(str(img.tolist()) for img in image) + "]"   
     return str(image.tolist()[0])
 
 @app.route("/model/predict", methods=["POST"])

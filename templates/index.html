@@ -46,6 +46,7 @@
           }
       }
       function draw() {
+          requestAnimationFrame(draw);
           ctx.fillStyle = "white";
           ctx.fillRect(0, 0, 560, 560);
           for(let i = 0;i < 28;i ++) {
@@ -116,7 +117,7 @@
           clear();
       });
 
-      setInterval(draw, 50);
+      requestAnimationFrame(draw);
     </script>
     <script>
         const correctGrid = (grid) => {
@@ -145,6 +146,7 @@
                 method: "GET",
                 url: "model/generate",
                 success: (data) => {
+                    console.log(data);
                     grid = JSON.parse(data);
                     for(let i = 0;i < 28;i ++) {
                         for(let j = 0;j < 28;j ++) {
