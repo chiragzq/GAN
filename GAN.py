@@ -7,6 +7,7 @@ from keras.layers import Input
 from keras.models import Model
 
 import numpy as np
+import png
 
 from model_generator import ModelGenerator
 
@@ -23,6 +24,9 @@ class GAN:
         self.x_test = None
         self.y_test = None
         self.training_iterations = 0
+        self.saved_images = 0
+        self.noise = np.random.uniform(-1.0, 1.0, size=(1, 100))
+
 
     def initialize_models(self):
         discriminator_optimizer = RMSprop(lr=2e-4, decay=6e-8)
@@ -49,12 +53,12 @@ class GAN:
         (self.x_train, self.y_train), (self.x_test, self.y_test) = mnist.load_data()
         self.x_train = self.x_train.astype('float32') / 255
         self.x_test = self.x_test.astype('float32') / 255
-        new_x_train = []
-        for image, label in zip(self.x_train, self.y_train):
-            if label == 2:
-                new_x_train.append(image)
-        self.y_train = np.ones([len(new_x_train)])
-        self.x_train = np.array(new_x_train)
+        #new_x_train = []
+        #for image, label in zip(self.x_train, self.y_train):
+        #    if label == 2:
+        #        new_x_train.append(image)
+        #self.y_train = np.ones([len(new_x_train)])
+        #self.x_train = np.array(new_x_train)
         
         #new_x_train = []
         #for _ in range(0, 512):
@@ -97,7 +101,21 @@ class GAN:
                 log = "%s [adversarial loss: %f, acc: %f]" % (log, loss, acc)
                 print(log)
         self.training_iterations += iterations
+        if self.training_iterations // 50 > self.saved_images:
+            self.saved_images += 1
+            image = np.array(self.model_generator.generator().predict(self.noise))
+            image = (255 - image[:, :, :, 0] * 255    ).astype(np.int16)
+            png.from_array(stretch(image.tolist()[0]), "L").save("static/images/%05d.png" % self.training_iterations)
+        
         print("\nDone!")
+    
+    def stretch(img):
+        res = []
+        for i in range(0, len(img) * 4):
+            res.append([])
+            for j in range(0, len(img[0]) * 4):
+                res[i].append(img[i // 4][j // 4])
+        return res
 
     def do_discriminator_test(self):
         batch_size = 64

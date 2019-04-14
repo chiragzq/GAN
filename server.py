@@ -2,6 +2,7 @@ import numpy as np
 import json
 import _thread as thread
 from flask import Flask, render_template, request
+import os
 
 app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
@@ -34,6 +35,10 @@ def train():
 @app.route("/getFirstImage")
 def get_first_image():
     return str(gan.x_train[0].tolist())
+    
+@app.route("/static/images/")
+def images():
+    return "<br>".join(sorted(map(lambda f : "<a href='%s'>%s</a>" % (f, f), os.listdir("static/images/"))))
 
 def set_GAN(GAN):
     global gan
