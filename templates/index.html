@@ -13,7 +13,9 @@
     <div>
         <button id="train">Train</button>
         <button id="generate">Generate an image</button>
-        <button id="check">Check</button><br />
+        <button id="check">Check</button>
+        <button id="fun">Fun</button>
+        <br />
         <p id="result"></p>
     </div>
     <script>
@@ -168,6 +170,36 @@
                     $("#result").text(`There is a ${Math.round(data[0] * 100)}% chance that this is a number.`);
                 }
             });
+        });
+        
+        function trainAndQuery() {
+          $.ajax({
+              method: "GET",
+              url: "model/train",
+              success: (data) => {
+                  $("#result").text("Done");
+                  $.ajax({
+                    method: "GET",
+                    url: "model/generate",
+                    success: (data) => {
+                      console.log(data);
+                      grid = JSON.parse(data);
+                      for(let i = 0;i < 28;i ++) {
+                          for(let j = 0;j < 28;j ++) {
+                              grid[i][j] /= 1000;
+                          }
+                      }
+                      grid = correctGrid(grid)
+                      trainAndQuery();
+                    }
+                  });
+                }
+          })
+        }
+        
+        
+        $("#fun").click((e) => {
+          trainAndQuery();
         })
     </script>
   </body>

@@ -55,11 +55,11 @@ class GAN:
         self.y_train = np.ones([len(new_x_train)])
         self.x_train = np.array(new_x_train)
         
-        new_x_train = []
-        for _ in range(0, 512):
-            new_x_train.append(self.x_train[0])
-        self.y_train = np.ones([len(new_x_train)])
-        self.x_train = np.array(new_x_train)
+        #new_x_train = []
+        #for _ in range(0, 512):
+        #    new_x_train.append(self.x_train[0])
+        #self.y_train = np.ones([len(new_x_train)])
+        #self.x_train = np.array(new_x_train)
         
         print("Done!")
     
