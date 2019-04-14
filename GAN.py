@@ -25,7 +25,8 @@ class GAN:
         self.y_test = None
         self.training_iterations = 0
         self.saved_images = 0
-        self.noise = np.random.uniform(-1.0, 1.0, size=(1, 100))
+        self.grid_length = 5
+        self.noise = np.random.uniform(-1.0, 1.0, size=(self.grid_length ** 2, 100))
 
 
     def initialize_models(self):
@@ -56,7 +57,7 @@ class GAN:
         #new_x_train = []
         #for image, label in zip(self.x_train, self.y_train):
         #    if label == 2:
-        #        new_x_train.append(image)
+        ##        new_x_train.append(image)
         #self.y_train = np.ones([len(new_x_train)])
         #self.x_train = np.array(new_x_train)
         
@@ -101,20 +102,35 @@ class GAN:
                 log = "%s [adversarial loss: %f, acc: %f]" % (log, loss, acc)
                 print(log)
         self.training_iterations += iterations
-        if self.training_iterations // 50 > self.saved_images:
+        if self.training_iterations // 5 > self.saved_images:
             self.saved_images += 1
-            image = np.array(self.model_generator.generator().predict(self.noise))
-            image = (255 - image[:, :, :, 0] * 255    ).astype(np.int16)
-            png.from_array(self.stretch(image.tolist()[0]), "L").save("static/images/%05d.png" % self.training_iterations)
+            images = np.array(self.model_generator.generator().predict(self.noise))
+            images = [np.pad(img, 1, "constant") for img in (255 - np.array(self.model_generator.generator().predict(self.noise))[:, :, :, 0] * 255).astype(np.int16)]
+            edge = len(images[0])
+            big = []
+            
+            for i in range(0, self.grid_length):
+                for k in range(0, edge):
+                    big.append([])
+                    for j in range(0, self.grid_length):
+                        for l in range(0, edge):
+                            big[i * edge + k].append(images[i * self.grid_length + j][k][l]
+                            )
+            for i in range(0, len(big)):
+                big[i] = np.array(big[i])
+            big = np.array(big)
+            
+            png.from_array(self.stretch(big), "L").save("static/images/%05d.png" % self.training_iterations)
         
         print("\nDone!")
     
     def stretch(self, img):
+        stretch_factor = 8
         res = []
-        for i in range(0, len(img) * 4):
+        for i in range(0, len(img) * stretch_factor):
             res.append([])
-            for j in range(0, len(img[0]) * 4):
-                res[i].append(img[i // 4][j // 4])
+            for j in range(0, len(img[0]) * stretch_factor):
+                res[i].append(img[i // stretch_factor][j // stretch_factor])
         return res
 
     def do_discriminator_test(self):
