@@ -19,7 +19,7 @@ def generate_image():
     image = np.around(gan.generate_image() * 1000)
     #image = np.around(gan.x_train[0] * 1000)
     #return "[" + ",".join(str(img.tolist()) for img in image) + "]"
-    return str(image.tolist()[0])
+    return str(gan.training_iterations) + "\n" + str(image.tolist()[0])
 
 @app.route("/model/predict", methods=["POST"])
 def predict_image():
@@ -28,7 +28,7 @@ def predict_image():
 
 @app.route("/model/train", methods=["GET"])
 def train():
-    gan.train(1, 64)
+    gan.train(5, 64)
     return ""
     
 @app.route("/getFirstImage")

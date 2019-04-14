@@ -22,6 +22,7 @@ class GAN:
         self.y_train = None
         self.x_test = None
         self.y_test = None
+        self.training_iterations = 0
 
     def initialize_models(self):
         discriminator_optimizer = RMSprop(lr=2e-4, decay=6e-8)
@@ -95,6 +96,7 @@ class GAN:
                 loss, acc = self.adversial.train_on_batch(noise, y)
                 log = "%s [adversarial loss: %f, acc: %f]" % (log, loss, acc)
                 print(log)
+        self.training_iterations += iterations
         print("\nDone!")
 
     def do_discriminator_test(self):

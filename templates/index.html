@@ -16,7 +16,7 @@
         <button id="check">Check</button>
         <button id="fun">Fun</button>
         <br />
-        <p id="result"></p>
+        <p id="iterations"></p>
     </div>
     <script>
       let DRAW = 0;
@@ -139,7 +139,6 @@
                 method: "GET",
                 url: "model/train",
                 success: (data) => {
-                    $("#result").text("Done");
                 }
             })
         });
@@ -148,8 +147,9 @@
                 method: "GET",
                 url: "model/generate",
                 success: (data) => {
-                    console.log(data);
-                    grid = JSON.parse(data);
+                    let parts = data.split("\n");
+                    $("#iterations").text("Iterations: " + parts[0])
+                    grid = JSON.parse(parts[1]);
                     for(let i = 0;i < 28;i ++) {
                         for(let j = 0;j < 28;j ++) {
                             grid[i][j] /= 1000;
@@ -177,20 +177,20 @@
               method: "GET",
               url: "model/train",
               success: (data) => {
-                  $("#result").text("Done");
                   $.ajax({
                     method: "GET",
                     url: "model/generate",
                     success: (data) => {
-                      console.log(data);
-                      grid = JSON.parse(data);
+                      let parts = data.split("\n");
+                      $("#iterations").text("Iterations: " + parts[0])
+                      grid = JSON.parse(parts[1]);
                       for(let i = 0;i < 28;i ++) {
-                          for(let j = 0;j < 28;j ++) {
+                            for(let j = 0;j < 28;j ++) {
                               grid[i][j] /= 1000;
                           }
                       }
                       grid = correctGrid(grid)
-                      trainAndQuery();
+                      trainAndQuery()
                     }
                   });
                 }
