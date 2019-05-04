@@ -38,7 +38,7 @@ def get_first_image():
     
 @app.route("/static/images/")
 def images():
-    return "<br>".join(sorted(map(lambda f : "<a href='%s'>%s</a>" % (f, f), os.listdir("static/images/"))))
+    return "<br>".join(sorted(map(lambda f : "<a href='%s'>%s</a>" % (f, f), os.listdir("static/images/")))) + slideshow_script
 
 def set_GAN(GAN):
     global gan
@@ -49,4 +49,19 @@ def run_server():
 
 def start_server():
     thread.start_new_thread(run_server, ())
-    
+
+slideshow_script = """
+<br /><button id="slideshow-button">Slideshow</button>
+<img id="img" src="" />
+<script>
+document.getElementById("slideshow-button").onclick = () => {
+    const hrefs = Array.from(document.getElementsByTagName("a")).map(a => a.href);
+    const timeout = 1000;
+    let i = 0;
+    setInterval(() => {
+        document.getElementById("img").src = hrefs[i % hrefs.length];
+        i++;
+    }, timeout);
+}
+</script>
+"""
