@@ -62,7 +62,7 @@ class GAN:
         if number is not None:
             new_x_train = []
             for image, label in zip(self.x_train, self.y_train):
-                if label == 2:
+                if label == number:
                     new_x_train.append(image)
             self.y_train = np.ones([len(new_x_train)])
             self.x_train = np.array(new_x_train)

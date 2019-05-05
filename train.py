@@ -6,8 +6,8 @@ if os.path.isfile('models/generator0'):
     print("There are already existig models. Move them somewhere else.")
     exit()
 
-TRAINING_STEPS = 2
-TRAIN_STEP_SIZE = 5
+TRAINING_STEPS = 1
+TRAIN_STEP_SIZE = 5000
 BATCH_SIZE = 64
 
 gans = []
