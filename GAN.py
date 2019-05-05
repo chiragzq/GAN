@@ -30,7 +30,7 @@ class GAN:
 
 
     def initialize_models(self):
-        discriminator_optimizer = RMSprop(lr=2e-4, decay=6e-8)
+        discriminator_optimizer = RMSprop(lr=2e-4, decay=3e-8)
         self.discriminator = keras.models.Sequential([self.model_generator.discriminator()])
         self.discriminator.compile(loss="binary_crossentropy", optimizer=discriminator_optimizer, metrics=["accuracy"])
         print("Compiled discriminator")
@@ -38,7 +38,7 @@ class GAN:
         self.model_generator.discriminator().trainable = False
         for layer in self.model_generator.discriminator().layers:
             layer.trainable = False
-        adversial_optimizer = RMSprop(lr=1e-4, decay=3e-8)
+        adversial_optimizer = RMSprop(lr=1e-4, decay=1.5e-8)
 
         input = Input(shape=(100,))
         self.adversial = Model(
@@ -102,7 +102,7 @@ class GAN:
                 log = "%s [adversarial loss: %f, acc: %f]" % (log, loss, acc)
                 print(log)
         self.training_iterations += iterations
-        if self.training_iterations // 5 > self.saved_images:
+        if self.training_iterations // 50 > self.saved_images:
             self.saved_images += 1
             images = np.array(self.model_generator.generator().predict(self.noise))
             images = [np.pad(img, 1, "constant") for img in (255 - np.array(self.model_generator.generator().predict(self.noise))[:, :, :, 0] * 255).astype(np.int16)]
@@ -114,8 +114,7 @@ class GAN:
                     big.append([])
                     for j in range(0, self.grid_length):
                         for l in range(0, edge):
-                            big[i * edge + k].append(images[i * self.grid_length + j][k][l]
-                            )
+                            big[i * edge + k].append(images[i * self.grid_length + j][k][l])
             for i in range(0, len(big)):
                 big[i] = np.array(big[i])
             big = np.array(big)

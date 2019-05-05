@@ -29,7 +29,7 @@ def predict_image():
 
 @app.route("/model/train", methods=["GET"])
 def train():
-    gan.train(5, 64)
+    gan.train(10, 64)
     return ""
     
 @app.route("/getFirstImage")
