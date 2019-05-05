@@ -52,7 +52,7 @@ def start_server():
 
 slideshow_script = """
 <br /><button id="slideshow-button">Slideshow</button>
-<img id="img" src="" />
+<img id="img" src="" /><p id="iterations"></p>
 <script>
 document.getElementById("slideshow-button").onclick = () => {
     const hrefs = Array.from(document.getElementsByTagName("a")).map(a => a.href);
@@ -60,8 +60,10 @@ document.getElementById("slideshow-button").onclick = () => {
     let i = 0;
     setInterval(() => {
         document.getElementById("img").src = hrefs[i % hrefs.length];
+        document.getElementById("iterations").innerHTML = hrefs[i % hrefs.length];
         i++;
     }, timeout);
 }
 </script>
 """
+

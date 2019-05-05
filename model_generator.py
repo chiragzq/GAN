@@ -60,7 +60,7 @@ class ModelGenerator:
             #    Dense(1),
             #    Activation("sigmoid")
             #])
-            self.d.summary()
+            #self.d.summary()
         return self.d
     
     def generator(self):
@@ -105,5 +105,5 @@ class ModelGenerator:
             #    Conv2DTranspose(1, kernel_size, padding="same"),
             #    Activation("sigmoid"),
             #])
-            self.g.summary()
+            #self.g.summary()
         return self.g

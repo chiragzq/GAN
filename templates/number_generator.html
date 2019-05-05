@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Handwriting Generator</title>
+  </head>
+  <body>
+    <label for="numbers">Enter number:</label><input id="numbers" type="number" min="0" /><button id="submit">Write</button><br />
+    <img src="" />
+    <script>
+      document.getElementById("submit").onclick = () => {
+        const number = document.getElementById("numbers").value;
+        document.getElementsByTagName("img")[0].src = "/generate?number=" + number + "&date=" + Date.now();
+      }
+    </script>
+  </body>
+</html>

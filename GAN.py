@@ -13,6 +13,8 @@ from model_generator import ModelGenerator
 
 graph = tf.get_default_graph()
 
+do_saving = False
+
 class GAN:
     def __init__(self):
         self.model_generator = ModelGenerator()
@@ -25,20 +27,20 @@ class GAN:
         self.y_test = None
         self.training_iterations = 0
         self.saved_images = 0
-        self.grid_length = 5
+        self.grid_length = 6
         self.noise = np.random.uniform(-1.0, 1.0, size=(self.grid_length ** 2, 100))
 
 
     def initialize_models(self):
-        discriminator_optimizer = RMSprop(lr=2e-4, decay=3e-8)
+        discriminator_optimizer = RMSprop(lr=2e-4, decay=6e-8)
         self.discriminator = keras.models.Sequential([self.model_generator.discriminator()])
         self.discriminator.compile(loss="binary_crossentropy", optimizer=discriminator_optimizer, metrics=["accuracy"])
         print("Compiled discriminator")
-
+        
         self.model_generator.discriminator().trainable = False
         for layer in self.model_generator.discriminator().layers:
             layer.trainable = False
-        adversial_optimizer = RMSprop(lr=1e-4, decay=1.5e-8)
+        adversial_optimizer = RMSprop(lr=1e-4, decay=3e-8)
 
         input = Input(shape=(100,))
         self.adversial = Model(
@@ -46,20 +48,24 @@ class GAN:
             self.model_generator.discriminator()(self.model_generator.generator()(input))
         )
         self.adversial.compile(loss="binary_crossentropy", optimizer=adversial_optimizer, metrics=["accuracy"])
-        self.adversial.summary()
+        #self.adversial.summary()
+        
+        self.generator = self.model_generator.generator()
         print("Compiled adversial")
     
-    def load_images(self):
+    def load_images(self, number=None):
         print("Loading images")
         (self.x_train, self.y_train), (self.x_test, self.y_test) = mnist.load_data()
         self.x_train = self.x_train.astype('float32') / 255
         self.x_test = self.x_test.astype('float32') / 255
-        #new_x_train = []
-        #for image, label in zip(self.x_train, self.y_train):
-        #    if label == 2:
-        ##        new_x_train.append(image)
-        #self.y_train = np.ones([len(new_x_train)])
-        #self.x_train = np.array(new_x_train)
+        
+        if number is not None:
+            new_x_train = []
+            for image, label in zip(self.x_train, self.y_train):
+                if label == 2:
+                    new_x_train.append(image)
+            self.y_train = np.ones([len(new_x_train)])
+            self.x_train = np.array(new_x_train)
         
         #new_x_train = []
         #for _ in range(0, 512):
@@ -102,7 +108,7 @@ class GAN:
                 log = "%s [adversarial loss: %f, acc: %f]" % (log, loss, acc)
                 print(log)
         self.training_iterations += iterations
-        if self.training_iterations // 50 > self.saved_images:
+        if do_saving and self.training_iterations // 50 > self.saved_images:
             self.saved_images += 1
             images = np.array(self.model_generator.generator().predict(self.noise))
             images = [np.pad(img, 1, "constant") for img in (255 - np.array(self.model_generator.generator().predict(self.noise))[:, :, :, 0] * 255).astype(np.int16)]
