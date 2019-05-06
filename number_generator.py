@@ -39,7 +39,7 @@ class NumberGenerator:
                     flag = True
             if flag:
                 break
-        for j in range(len(image) - 1, -1):
+        for j in range(len(image) - 1, -1, -1):
             flag = False
             for k in range(0, len(image[i])):
                 if image[k][j] > THRESH:
