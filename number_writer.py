@@ -15,7 +15,7 @@ def index():
 @app.route("/yay")
 def yay():
     img = generator.generate_number([0,1,2,3,4,5,6,7,8,9])
-    img = (255 - np.array(img) * 255).astype(np.uint8)
+    img = (255 - img * 255).astype(np.uint8)
     print(img)
     png.from_array(img, "L").save("tmp/img/image.png")
     return send_file('tmp/img/image.png', attachment_filename='python.jpg')
@@ -23,7 +23,9 @@ def yay():
 @app.route("/generate", methods=["GET"])
 def generate():
     numbers = [int(x) for x in request.args["number"]]
-    img = (255 - np.array(generator.generate_number(numbers)) * 255).astype(np.uint8)
+    ree = generator.generate_number(numbers)
+    print(ree.shape)
+    img = (255 - ree * 255).astype(np.uint8)
     png.from_array(img, "L").save("tmp/img/image.png")
     return send_file("tmp/img/image.png", attachment_filename="number.png")
     

@@ -24,7 +24,27 @@ class NumberGenerator:
         for i in range(0, 28):
             res.append([])
         for digit in digits:
-            image = self.generate_digit(digit)
+            image = self.reduce_image(self.generate_digit(digit))
+            print(image.shape)
             for (index, r) in enumerate(image):
                 res[index].extend(r)
-        return res
+        return np.array(res)
+        
+    def reduce_image(self, image):
+        THRESH = 0.5
+        for i in range(0, len(image)):
+            flag = False
+            for j in range(0, len(image)):
+                if image[j][i] > THRESH:
+                    flag = True
+            if flag:
+                break
+        for j in range(len(image) - 1, -1):
+            flag = False
+            for k in range(0, len(image[i])):
+                if image[k][j] > THRESH:
+                    flag = True
+            if flag:
+                break
+        return image[:, slice(i, j + 1, 1)]
+        
