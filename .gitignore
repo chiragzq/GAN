@@ -2,4 +2,4 @@ __pycache__/
 static/images/
 tmp/
 *.pyc
-
+.vscode/
