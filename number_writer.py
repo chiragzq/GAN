@@ -2,11 +2,14 @@ import png
 from number_generator import NumberGenerator
 from flask import Flask, send_file, render_template, request
 import numpy as np
+import os
 
 generator = NumberGenerator()
 
 app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
+
+os.makedirs("tmp/img/", exist_ok=True)
 
 @app.route("/")
 def index():
